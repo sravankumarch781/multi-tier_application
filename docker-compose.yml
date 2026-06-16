@@ -1,48 +1,55 @@
 version: '3.8'
 
 services:
-  database:
-    image: mysql:8.0
-    container_name: app_backend_db
-    restart: always
+  # Tier 1: Frontend Web Service
+  frontend:
+    image: nginx:alpine
+    container_name: app_frontend
+    ports:
+      - "80:80"
     environment:
-      MYSQL_ROOT_PASSWORD: securepassword
-      MYSQL_DATABASE: app_db
-    volumes:
-      - db_data:/var/lib/mysql
+      - REACT_APP_API_URL=http://<YOUR_PUBLIC_IP>:5000
     networks:
-      - app_network
+      - frontend_net
+    depends_on:
+      - api
 
+  # Tier 2: Backend API Service
   api:
-    build: ./backend
-    container_name: app_api_server
-    restart: always
+    image: node:18-alpine
+    container_name: app_api
     ports:
       - "5000:5000"
     environment:
-      DB_HOST: database
-      DB_USER: root
-      DB_PASSWORD: securepassword
-      DB_NAME: app_db
+      - DB_HOST=database
+      - DB_USER=admin
+      - DB_PASSWORD=SecurePassword123
+      - DB_NAME=app_db
+    networks:
+      - frontend_net
+      - backend_net
     depends_on:
       - database
-    networks:
-      - app_network
 
-  frontend:
-    build: ./frontend
-    container_name: app_frontend_web
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - api
+  # Tier 3: Database Storage Service
+  database:
+    image: postgres:15-alpine
+    container_name: app_database
+    # Notice: Port 5432 is deliberately NOT mapped to the host for external isolation
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=SecurePassword123
+      - POSTGRES_DB=app_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
     networks:
-      - app_network
+      - backend_net
 
 volumes:
   db_data:
 
 networks:
-  app_network:
+  frontend_net:
+    driver: bridge
+  backend_net:
     driver: bridge
