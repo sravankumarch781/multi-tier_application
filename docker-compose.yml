@@ -1,55 +1,25 @@
-version: '3.8'
-
 services:
-  # Tier 1: Frontend Web Service
-  frontend:
-    image: nginx:alpine
-    container_name: app_frontend
+  wordpress:
+    image: wordpress:latest
     ports:
-      - "80:80"
+      - "8008:80"
     environment:
-      - REACT_APP_API_URL=http://<YOUR_PUBLIC_IP>:5000
-    networks:
-      - frontend_net
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wp_database
     depends_on:
-      - api
+      - db
 
-  # Tier 2: Backend API Service
-  api:
-    image: node:18-alpine
-    container_name: app_api
-    ports:
-      - "5000:5000"
+  db:
+    image: mysql:5.7
     environment:
-      - DB_HOST=database
-      - DB_USER=admin
-      - DB_PASSWORD=SecurePassword123
-      - DB_NAME=app_db
-    networks:
-      - frontend_net
-      - backend_net
-    depends_on:
-      - database
-
-  # Tier 3: Database Storage Service
-  database:
-    image: postgres:15-alpine
-    container_name: app_database
-    # Notice: Port 5432 is deliberately NOT mapped to the host for external isolation
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=SecurePassword123
-      - POSTGRES_DB=app_db
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: wp_database
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_pass
     volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - backend_net
+      - db_data:/var/lib/mysql
 
 volumes:
   db_data:
-
-networks:
-  frontend_net:
-    driver: bridge
-  backend_net:
-    driver: bridge
