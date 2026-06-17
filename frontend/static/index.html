@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Multi-tier App</title>
+</head>
+<body>
+  <h1>Multi-tier App Frontend</h1>
+  <div id="status">Checking backend...</div>
+  <script>
+    fetch('/api/')
+      .then(r => r.json())
+      .then(j => document.getElementById('status').textContent = j.message)
+      .catch(e => document.getElementById('status').textContent = 'Backend error')
+  </script>
+</body>
+</html>

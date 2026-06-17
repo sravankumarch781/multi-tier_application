@@ -1,43 +1,17 @@
-﻿# Multi-Tier Docker Compose Application
+# Multi-tier App
 
-This workspace now contains a multi-tier stack with:
- `frontend`: Nginx-based static frontend exposed on host port `8080`
- `api`: Node.js Express API exposed on host port `5000`
- Frontend: `http://localhost:8080`
- API status endpoint: `http://localhost:5000/status`
- Frontend on host port `8080`
- API on host port `5000`
- Allow inbound TCP on port `8080`
- Allow inbound TCP on port `5000` only from trusted clients
+This sample multi-tier application contains:
+
+- Postgres database service
+- Flask backend service
+- Nginx frontend serving static files and proxying /api to backend
+
+Run:
+
+```bash
 docker compose up --build
 ```
 
-## Access services
-
-- Frontend: `http://localhost:3000`
-- API status endpoint: `http://localhost:4000/status`
-
-> The database service is not published on a host port, so it is not accessible directly from the public network.
-
-## Public IP and security group guidance
-
-If you deploy this stack to a public cloud host, use these rules:
-
-1. Frontend access
-   - Allow inbound TCP on port `3000`
-   - Source: `0.0.0.0/0` for public web access, or restrict to known IP ranges if desired
-
-2. API access
-   - Allow inbound TCP on port `4000` only from trusted clients
-   - Prefer source allowlist of application or service IPs rather than opening to the world
-
-3. Database access
-   - Do not expose MySQL port `3306` publicly
-   - Allow inbound TCP on `3306` only from the API host or internal application subnet
-   - Example source: the private network range for your containers or VM instances
-
-## Notes
-
-- `frontend` proxies `/api` requests internally to the `api` service.
-- `db` remains isolated within Docker Compose and is reachable only by `api`.
-- For production, replace hard-coded credentials with secrets and enable HTTPS.
+Frontend: http://localhost:8080
+Backend: http://localhost:5000
+Database: postgres container (5432 exposed only to compose network)

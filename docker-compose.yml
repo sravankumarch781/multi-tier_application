@@ -1,46 +1,30 @@
+version: '3.8'
+
 services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_pass
+      POSTGRES_DB: app_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgres://app_user:app_pass@db:5432/app_db
+    depends_on:
+      - db
+
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     ports:
       - "8080:80"
     depends_on:
-      - api
-    restart: unless-stopped
-
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    ports:
-      - "5000:4000"
-    environment:
-      DB_HOST: db
-      DB_USER: wp_user
-      DB_PASSWORD: wp_pass
-      DB_NAME: wp_database
-      DB_PORT: "3306"
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  db:
-    image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: wp_database
-      MYSQL_USER: wp_user
-      MYSQL_PASSWORD: wp_pass
-    volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+      - backend
 
 volumes:
   db_data:
