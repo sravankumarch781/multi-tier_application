@@ -1,17 +1,46 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Multi-tier App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-tier App Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Multi-tier App Frontend</h1>
-  <div id="status">Checking backend...</div>
-  <script>
-    fetch('/api/')
-      .then(r => r.json())
-      .then(j => document.getElementById('status').textContent = j.message)
-      .catch(e => document.getElementById('status').textContent = 'Backend error')
-  </script>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1 class="title">Multi-tier App Dashboard</h1>
+        <p class="subtitle">A graphical web interface for your backend and database services.</p>
+      </div>
+      <div class="grid">
+        <div class="panel">
+          <h2>System status</h2>
+          <p id="statusText">Checking services...</p>
+        </div>
+        <div class="panel card-row">
+          <div>
+            <h2>Backend</h2>
+            <p class="value" id="backendValue">Loading...</p>
+          </div>
+          <div>
+            <h2>Database</h2>
+            <p class="value" id="dbValue">Loading...</p>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Quick links</h2>
+          <div class="button-row">
+            <a class="button" href="/api/" target="_blank">Backend API</a>
+            <a class="button" href="https://www.postgresql.org/" target="_blank">Postgres Docs</a>
+          </div>
+        </div>
+      </div>
+      <footer>
+        Frontend served by nginx, backend served by Flask, database on Postgres.
+      </footer>
+    </div>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
